@@ -1,0 +1,3 @@
+# Intentionally empty.
+# This keeps Cloudflare's non-interactive SvelteKit auto-setup from failing
+# if it falls back to scanning the static assets directory during deploy.
