@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+	--font-display: "Space Grotesk", "IBM Plex Sans", sans-serif;
+	--font-body: "IBM Plex Sans", sans-serif;
+	--color-ink-950: #0c111d;
+	--color-ink-900: #111827;
+	--color-ink-800: #192230;
+	--color-ink-700: #2c394b;
+	--color-sand-100: #f5f1e8;
+	--color-sand-200: #e9e0cf;
+	--color-coral-400: #ff8661;
+	--color-coral-500: #f46a45;
+	--color-teal-400: #4ed6ca;
+	--color-cyan-400: #65cfff;
+	--color-gold-400: #f5c65c;
+	--color-lime-400: #9dd15e;
+}
+
+:root {
+	color-scheme: dark;
+	--page-bg:
+		radial-gradient(circle at top left, rgb(78 214 202 / 0.16), transparent 28%),
+		radial-gradient(circle at top right, rgb(245 198 92 / 0.12), transparent 22%),
+		linear-gradient(180deg, #0c111d 0%, #111827 52%, #0d1729 100%);
+}
+
+html {
+	scroll-behavior: smooth;
+	background: #0c111d;
+}
+
+body {
+	min-height: 100vh;
+	background: var(--page-bg);
+	color: var(--color-sand-100);
+	font-family: var(--font-body);
+}
+
+::selection {
+	background: rgb(78 214 202 / 0.28);
+}
+
+.grain-overlay::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	background-image:
+		linear-gradient(rgb(255 255 255 / 0.02), rgb(255 255 255 / 0.02)),
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+	mix-blend-mode: soft-light;
+	opacity: 0.18;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
