@@ -67,7 +67,8 @@
 				</div>
 
 				{#await topic.demo.component() then module}
-					<svelte:component this={module.default} />
+					{@const DemoComponent = module.default}
+					<DemoComponent />
 				{:catch error}
 					<div class="rounded-2xl border border-coral-400/20 bg-coral-400/10 p-4 text-sm text-coral-100">
 						Demo failed to load: {error.message}

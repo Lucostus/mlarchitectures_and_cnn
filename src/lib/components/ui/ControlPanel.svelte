@@ -1,5 +1,5 @@
 <script lang="ts">
-	export interface RangeControl {
+	type RangeControl = {
 		id: string;
 		label: string;
 		min: number;
@@ -8,14 +8,14 @@
 		value: number;
 		format?: (value: number) => string;
 		onChange: (value: number) => void;
-	}
+	};
 
-	export interface PanelButton {
+	type PanelButton = {
 		label: string;
 		onClick: () => void;
 		variant?: 'solid' | 'ghost';
 		active?: boolean;
-	}
+	};
 
 	let { ranges = [] as RangeControl[], buttons = [] as PanelButton[], summary = '' } = $props();
 </script>

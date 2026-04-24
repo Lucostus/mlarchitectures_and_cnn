@@ -1,23 +1,35 @@
 <script lang="ts">
 	import ControlPanel from '$ui/ControlPanel.svelte';
 	import DiagramCanvas from '$ui/DiagramCanvas.svelte';
-	import { getDemoPreset, type DemoKind } from '$presentation/demo-presets';
-	import type { TopicSlug } from '$presentation/types';
+	import type { DemoKind, DemoPresetConfig } from '$presentation/demo-presets';
 
 	const TAU = Math.PI * 2;
+	type DemoPreset = DemoPresetConfig['presets'][number];
 
-	let { slug } = $props<{ slug: TopicSlug }>();
+	let { config } = $props<{ config: DemoPresetConfig }>();
 
-	const config = $derived(getDemoPreset(slug));
-
-	let primary = $state(config.primary.initial);
-	let secondary = $state(config.secondary.initial);
+	let primary = $state(0);
+	let secondary = $state(0);
 	let playing = $state(false);
 	let tick = $state(0);
+	let initialized = $state(false);
+	let activeNote = $state('');
 
-	const applyPreset = (preset: (typeof config.presets)[number]) => {
+	$effect.pre(() => {
+		if (initialized) {
+			return;
+		}
+
+		primary = config.primary.initial;
+		secondary = config.secondary.initial;
+		activeNote = config.presets[0]?.note ?? config.summary;
+		initialized = true;
+	});
+
+	const applyPreset = (preset: DemoPreset) => {
 		primary = preset.primary;
 		secondary = preset.secondary;
+		activeNote = preset.note;
 	};
 
 	const reset = () => {
@@ -25,7 +37,28 @@
 		secondary = config.secondary.initial;
 		tick = 0;
 		playing = false;
+		activeNote = config.presets[0]?.note ?? config.summary;
 	};
+
+	const cue = $derived.by(() => {
+		switch (config.kind) {
+			case 'sequence':
+				return 'Watch how the hidden-state bars grow or fade as information moves through time.';
+			case 'attention':
+				return 'Brighter cells indicate stronger token-to-token influence.';
+			case 'gridworld':
+				return 'Arrow confidence shows the current policy bias toward a direction.';
+			case 'tree':
+				return 'Deeper layers create more specific regions and more brittle splits.';
+			case 'latent':
+				return 'Points compress toward the bottleneck and spread back out at reconstruction.';
+			case 'graph':
+			case 'hybrid':
+				return 'Larger node halos and brighter edges indicate stronger message mixing.';
+			default:
+				return 'Use the sliders and presets to see what structural bias this model adds.';
+		}
+	});
 
 	$effect(() => {
 		if (!playing) {
@@ -58,7 +91,7 @@
 
 	const ranges = $derived([
 		{
-			id: `${slug}-primary`,
+			id: `${config.slug}-primary`,
 			label: config.primary.label,
 			min: config.primary.min,
 			max: config.primary.max,
@@ -68,7 +101,7 @@
 			onChange: (value: number) => (primary = value)
 		},
 		{
-			id: `${slug}-secondary`,
+			id: `${config.slug}-secondary`,
 			label: config.secondary.label,
 			min: config.secondary.min,
 			max: config.secondary.max,
@@ -80,7 +113,7 @@
 	]);
 
 	const buttons = $derived([
-		...config.presets.map((preset) => ({
+		...config.presets.map((preset: DemoPreset) => ({
 			label: preset.label,
 			onClick: () => applyPreset(preset),
 			variant: 'ghost' as const
@@ -106,7 +139,7 @@
 
 <div class="grid gap-4 xl:grid-cols-[1.5fr_0.9fr]">
 	<div class="space-y-4">
-		<DiagramCanvas label={`${slug} interactive demo`}>
+		<DiagramCanvas label={`${config.slug} interactive demo`}>
 			{#if renderKind(config.kind) === 'network'}
 				{#each Array.from({ length: Math.round(primary) }) as _, layerIndex}
 					{#each Array.from({ length: 3 + (layerIndex % 3) }) as __, nodeIndex}
@@ -379,7 +412,10 @@
 
 		<p class="rounded-2xl border border-white/8 bg-black/20 px-4 py-3 text-sm leading-6 text-sand-200/75">
 			{config.summary}
-			<span class="ml-2 text-cyan-300/80">{config.presets[0]?.note}</span>
+			<span class="ml-2 text-cyan-300/80">{activeNote}</span>
+		</p>
+		<p class="rounded-2xl border border-teal-400/10 bg-teal-400/6 px-4 py-3 text-sm leading-6 text-teal-50/80">
+			{cue}
 		</p>
 	</div>
 
